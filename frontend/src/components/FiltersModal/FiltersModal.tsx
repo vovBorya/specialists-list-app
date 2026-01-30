@@ -86,6 +86,9 @@ const FiltersModal: React.FC<FiltersModalProps> = ({ isOpen, totalResults }) => 
             />
           </div>
 
+          <div className={styles.filterDivider} />
+          <div className={styles.filterDivider} />
+
           {/* Gender */}
           <div className={styles.filterSection}>
             <h3 className={styles.filterSectionTitle}>Gender</h3>
@@ -106,6 +109,8 @@ const FiltersModal: React.FC<FiltersModalProps> = ({ isOpen, totalResults }) => 
               </button>
             </div>
           </div>
+
+          <div className={styles.filterDivider} />
 
           {/* Age Range */}
           <div className={styles.filterSection}>
