@@ -48,11 +48,11 @@ export class SpecialistsService {
     }
 
     if (priceMin !== undefined) {
-      filtered = filtered.filter((s) => s.priceUSD >= priceMin);
+      filtered = filtered.filter((s) => s.price >= priceMin);
     }
 
     if (priceMax !== undefined) {
-      filtered = filtered.filter((s) => s.priceUSD <= priceMax);
+      filtered = filtered.filter((s) => s.price <= priceMax);
     }
 
     // Calculate pagination

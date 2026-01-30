@@ -5,8 +5,8 @@ const initialState: FiltersState = {
   ageMin: 22,
   ageMax: 55,
   gender: null,
-  priceMin: 10,
-  priceMax: 70,
+  priceMin: 800,
+  priceMax: 2800,
 };
 
 const filtersSlice = createSlice({

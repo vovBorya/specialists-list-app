@@ -16,12 +16,13 @@ export const specialistsApi = createApi({
   endpoints: (builder) => ({
     getSpecialists: builder.query<SpecialistsResponse, SpecialistsQueryParams>({
       query: (params) => {
-        const query = qs.stringify(params, {
+        const queryString = qs.stringify(params, {
           addQueryPrefix: true,
+          skipNulls: true,
         });
 
         return {
-          url: `/specialists?${query}`,
+          url: `/specialists${queryString}`,
           method: 'GET',
         };
       },

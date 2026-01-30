@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   IonPage,
   IonContent,
@@ -8,14 +8,22 @@ import {
   IonIcon,
   IonToast,
 } from '@ionic/react';
-import { filterOutline, swapVerticalOutline, heartOutline, searchOutline } from 'ionicons/icons';
+import { swapVerticalOutline, heartOutline, searchOutline } from 'ionicons/icons';
+
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { useGetSpecialistsQuery } from '../../api/specialistsApi';
 import { openFiltersModal } from '../../store/slices/uiSlice';
+
+import { useGetSpecialistsQuery } from '../../api/specialistsApi';
+
+import { useDebounce } from '../../hooks';
+
 import SpecialistCard from '../../components/SpecialistCard';
 import FiltersModal from '../../components/FiltersModal';
-import type { Specialist, FiltersState } from '../../types/specialist';
-import './SpecialistsPage.css';
+import Icon from '../../components/Icon';
+import Text from '../../components/Text';
+
+import type { Specialist } from '../../types/specialist';
+import styles from './SpecialistsPage.module.css';
 
 const SpecialistsPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -27,41 +35,50 @@ const SpecialistsPage: React.FC = () => {
   const [isInfiniteDisabled, setIsInfiniteDisabled] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
 
-  // Build query params from filters
+  // Debounce filters to avoid excessive API calls (500ms delay)
+  const debouncedFilters = useDebounce(filters, 500);
+
+  // Track if this is the initial render to avoid unnecessary resets
+  const isInitialMount = useRef(true);
+
   const queryParams = {
     page,
     limit: 10,
-    ...(filters.gender && { gender: filters.gender }),
-    ageMin: filters.ageMin,
-    ageMax: filters.ageMax,
-    priceMin: filters.priceMin,
-    priceMax: filters.priceMax,
+    ...(debouncedFilters.gender && { gender: debouncedFilters.gender }),
+    ageMin: debouncedFilters.ageMin,
+    ageMax: debouncedFilters.ageMax,
+    priceMin: debouncedFilters.priceMin,
+    priceMax: debouncedFilters.priceMax,
   };
 
   const { data, isLoading, isError, isFetching } = useGetSpecialistsQuery(queryParams);
 
-  // Reset list when filters change
+  // Reset list when debounced filters change
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     setPage(1);
     setAllSpecialists([]);
     setIsInfiniteDisabled(false);
-  }, [filters]);
+  }, [debouncedFilters]);
 
   // Update specialists list when data changes
   useEffect(() => {
     if (data?.items) {
-      if (page === 1) {
+      if (data.page === 1) {
         setAllSpecialists(data.items);
       } else {
         setAllSpecialists((prev) => [...prev, ...data.items]);
       }
       
       // Check if we've loaded all items
-      if (page >= data.totalPages) {
+      if (data.page >= data.totalPages) {
         setIsInfiniteDisabled(true);
       }
     }
-  }, [data, page]);
+  }, [data]);
 
   // Show error toast
   useEffect(() => {
@@ -88,13 +105,6 @@ const SpecialistsPage: React.FC = () => {
     dispatch(openFiltersModal());
   };
 
-  const handleApplyFilters = (_newFilters: FiltersState) => {
-    // Filters are already applied via Redux, just reset pagination
-    setPage(1);
-    setAllSpecialists([]);
-    setIsInfiniteDisabled(false);
-  };
-
   // Count active filters
   const activeFiltersCount = [
     filters.gender !== null,
@@ -105,46 +115,81 @@ const SpecialistsPage: React.FC = () => {
   return (
     <IonPage>
       <IonContent>
-        <div className="specialists-page">
+        <div className={styles.specialistsPage}>
           {/* Header */}
-          <div className="page-header">
-            <h1 className="page-title">
+          <div className={styles.pageHeader}>
+            <Text 
+              size={20} 
+              as="h3"
+              color="var(--color-text-primary)"
+              weight={600}
+            >
               Build healthy relationships with your partner
-            </h1>
-            <p className="page-subtitle">
+            </Text>
+            <Text 
+              as="h6"
+              size={15}
+              weight={600}
+              color="var(--color-text-muted)"
+            >
               {data?.total || 0} providers are currently available
-            </p>
+            </Text>
           </div>
 
           {/* Action Bar */}
-          <div className="action-bar">
-            <button className="action-button" onClick={handleOpenFilters}>
-              <IonIcon icon={filterOutline} />
-              <span>Filters</span>
-              {activeFiltersCount > 0 && (
-                <span className="badge">{activeFiltersCount}</span>
-              )}
+          <div className={styles.actionBar}>
+            <button className={styles.actionButton} onClick={handleOpenFilters}>
+              <Icon 
+                size={16}
+                name="filters" 
+                badge={activeFiltersCount}
+              />
+              <Text
+                size={14}
+                weight={600}
+                color="var(--color-text-primary)"
+              >
+                Filters
+              </Text>
             </button>
-            <button className="action-button">
-              <IonIcon icon={swapVerticalOutline} />
-              <span>Sort</span>
+            <button className={styles.actionButton}>
+              <Icon 
+                size={16}
+                name="upDownArrows"
+              />
+              <Text
+                size={14}
+                weight={600}
+                color="var(--color-text-primary)"
+              >
+                Sort
+              </Text>
             </button>
-            <button className="action-button">
-              <IonIcon icon={heartOutline} />
-              <span>Favorites</span>
-              <span className="badge badge-green">3</span>
+            <button className={styles.actionButton}>
+              <Icon 
+                size={16}
+                name="heartOutline"
+                badge={3}
+              />
+              <Text
+                size={14}
+                weight={600}
+                color="var(--color-text-primary)"
+              >
+                Favorites
+              </Text>
             </button>
           </div>
 
           {/* Specialists List */}
-          <div className="specialists-list">
+          <div className={styles.specialistsList}>
             {isLoading && page === 1 ? (
-              <div className="loading-container">
+              <div className={styles.loadingContainer}>
                 <IonSpinner name="crescent" />
                 <p>Loading specialists...</p>
               </div>
             ) : allSpecialists.length === 0 && !isLoading ? (
-              <div className="empty-state">
+              <div className={styles.emptyState}>
                 <IonIcon icon={searchOutline} />
                 <h3>No specialists found</h3>
                 <p>Try adjusting your filters to see more results</p>
@@ -169,14 +214,11 @@ const SpecialistsPage: React.FC = () => {
           </IonInfiniteScroll>
         </div>
 
-        {/* Filters Modal */}
         <FiltersModal
           isOpen={isFiltersModalOpen}
-          onApply={handleApplyFilters}
           totalResults={data?.total || 0}
         />
 
-        {/* Error Toast */}
         <IonToast
           isOpen={showErrorToast}
           onDidDismiss={() => setShowErrorToast(false)}

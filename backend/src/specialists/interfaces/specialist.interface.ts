@@ -6,7 +6,7 @@ export interface Specialist {
   countryFlag: string;
   isVerified: boolean;
   isSuperSpecialist: boolean;
-  priceUSD: number;
+  price: number;
   sessionDuration: number;
   rating: number;
   reviewsCount: number;

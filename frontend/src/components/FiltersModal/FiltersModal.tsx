@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   IonModal,
   IonHeader,
@@ -11,64 +11,52 @@ import {
   IonRange,
 } from '@ionic/react';
 import { arrowBack } from 'ionicons/icons';
-import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { applyFilters, resetFilters } from '../../store/slices/filtersSlice';
-import { closeFiltersModal } from '../../store/slices/uiSlice';
-import type { FiltersState } from '../../types/specialist';
-import './FiltersModal.css';
 
-interface FiltersModalProps {
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import {
+  setAgeRange,
+  setGender,
+  setPriceRange,
+  resetFilters,
+} from '../../store/slices/filtersSlice';
+import { closeFiltersModal } from '../../store/slices/uiSlice';
+
+import styles from './FiltersModal.module.css';
+
+type FiltersModalProps = {
   isOpen: boolean;
-  onApply: (filters: FiltersState) => void;
   totalResults: number;
 }
 
-const FiltersModal: React.FC<FiltersModalProps> = ({ isOpen, onApply, totalResults }) => {
+const FiltersModal: React.FC<FiltersModalProps> = ({ isOpen, totalResults }) => {
   const dispatch = useAppDispatch();
-  const currentFilters = useAppSelector((state) => state.filters);
-
-  // Local state for the modal
-  const [localFilters, setLocalFilters] = useState<FiltersState>(currentFilters);
-
-  useEffect(() => {
-    if (isOpen) {
-      setLocalFilters(currentFilters);
-    }
-  }, [isOpen, currentFilters]);
+  const filters = useAppSelector((state) => state.filters);
 
   const handleClose = () => {
     dispatch(closeFiltersModal());
   };
 
-  const handleApply = () => {
-    dispatch(applyFilters(localFilters));
-    onApply(localFilters);
-    dispatch(closeFiltersModal());
+  const handleReset = () => {
+    dispatch(resetFilters());
+    handleClose()
   };
 
-  const handleReset = () => {
-    const defaultFilters: FiltersState = {
-      ageMin: 22,
-      ageMax: 55,
-      gender: null,
-      priceMin: 10,
-      priceMax: 70,
-    };
-    setLocalFilters(defaultFilters);
-    dispatch(resetFilters());
+  const handlePriceChange = (lower: number, upper: number) => {
+    dispatch(setPriceRange({ min: lower, max: upper }));
+  };
+
+  const handleAgeChange = (lower: number, upper: number) => {
+    dispatch(setAgeRange({ min: lower, max: upper }));
   };
 
   const handleGenderSelect = (gender: 'man' | 'woman') => {
-    setLocalFilters((prev) => ({
-      ...prev,
-      gender: prev.gender === gender ? null : gender,
-    }));
+    dispatch(setGender(filters.gender === gender ? null : gender));
   };
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={handleClose}>
-      <IonHeader>
-        <IonToolbar>
+      <IonHeader color='primary'>
+        <IonToolbar className={styles.filterToolbar}>
           <IonButtons slot="start">
             <IonButton onClick={handleClose}>
               <IonIcon icon={arrowBack} />
@@ -77,81 +65,73 @@ const FiltersModal: React.FC<FiltersModalProps> = ({ isOpen, onApply, totalResul
           <IonTitle>Filters</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="filters-content">
-        <div className="filters-container">
+      <IonContent className={styles.filtersContent}>
+        <div className={styles.filtersContainer}>
           {/* Price Range */}
-          <div className="filter-section">
-            <h3 className="filter-section-title">Price per session</h3>
-            <div className="range-display">
-              ${localFilters.priceMin} – ${localFilters.priceMax}
+          <div className={styles.filterSection}>
+            <h3 className={styles.filterSectionTitle}>Price per session</h3>
+            <div className={styles.rangeDisplay}>
+              {filters.priceMin} ₴ – {filters.priceMax} ₴
             </div>
             <IonRange
               dualKnobs
-              min={10}
-              max={70}
-              step={5}
-              value={{ lower: localFilters.priceMin, upper: localFilters.priceMax }}
+              min={800}
+              max={2800}
+              step={100}
+              value={{ lower: filters.priceMin, upper: filters.priceMax }}
               onIonChange={(e) => {
                 const value = e.detail.value as { lower: number; upper: number };
-                setLocalFilters((prev) => ({
-                  ...prev,
-                  priceMin: value.lower,
-                  priceMax: value.upper,
-                }));
+                handlePriceChange(value.lower, value.upper);
               }}
             />
           </div>
 
           {/* Gender */}
-          <div className="filter-section">
-            <h3 className="filter-section-title">Gender</h3>
-            <div className="gender-buttons">
+          <div className={styles.filterSection}>
+            <h3 className={styles.filterSectionTitle}>Gender</h3>
+            <div className={styles.genderButtons}>
               <button
-                className={`gender-button ${localFilters.gender === 'man' ? 'selected' : ''}`}
+                className={`${styles.genderButton} ${filters.gender === 'man' ? styles.selected : ''}`}
                 onClick={() => handleGenderSelect('man')}
               >
-                <span className="emoji">👨</span>
+                <span className={styles.emoji}>👨</span>
                 <span>Man</span>
               </button>
               <button
-                className={`gender-button ${localFilters.gender === 'woman' ? 'selected' : ''}`}
+                className={`${styles.genderButton} ${filters.gender === 'woman' ? styles.selected : ''}`}
                 onClick={() => handleGenderSelect('woman')}
               >
-                <span className="emoji">👩</span>
+                <span className={styles.emoji}>👩</span>
                 <span>Woman</span>
               </button>
             </div>
           </div>
 
           {/* Age Range */}
-          <div className="filter-section">
-            <h3 className="filter-section-title">Age</h3>
-            <div className="range-display">
-              {localFilters.ageMin} – {localFilters.ageMax}+
+          <div className={styles.filterSection}>
+            <h3 className={styles.filterSectionTitle}>Age</h3>
+            <div className={styles.rangeDisplay}>
+              {filters.ageMin} – {filters.ageMax}+
             </div>
             <IonRange
               dualKnobs
               min={22}
               max={55}
               step={1}
-              value={{ lower: localFilters.ageMin, upper: localFilters.ageMax }}
+              value={{ lower: filters.ageMin, upper: filters.ageMax }}
               onIonChange={(e) => {
                 const value = e.detail.value as { lower: number; upper: number };
-                setLocalFilters((prev) => ({
-                  ...prev,
-                  ageMin: value.lower,
-                  ageMax: value.upper,
-                }));
+                handleAgeChange(value.lower, value.upper);
               }}
             />
           </div>
         </div>
 
-        <div className="filter-actions">
-          <button className="clear-button" onClick={handleReset}>
+        <div className={styles.filterActions}>
+          <button className={styles.clearButton} onClick={handleReset}>
             Clear all
           </button>
-          <button className="show-button" onClick={handleApply}>
+          <button className={styles.showButton} onClick={handleClose}>
             Show ({totalResults})
           </button>
         </div>
