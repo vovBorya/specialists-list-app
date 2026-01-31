@@ -15,6 +15,8 @@ interface UseSpecialistsListReturn {
   hasMore: boolean;
   total: number;
   loadMore: () => void;
+  /** Tricky hack, to change when filters change - use to reset IonInfiniteScroll */
+  scrollKey: number;
 }
 
 export function useSpecialistsList(): UseSpecialistsListReturn {
@@ -23,6 +25,7 @@ export function useSpecialistsList(): UseSpecialistsListReturn {
   const [page, setPage] = useState(1);
   const [allSpecialists, setAllSpecialists] = useState<Specialist[]>([]);
   const [isInfiniteDisabled, setIsInfiniteDisabled] = useState(false);
+  const [scrollKey, setScrollKey] = useState(0);
 
   // Debounce filters to avoid excessive API calls
   const debouncedFilters = useDebounce(filters, DEBOUNCE_DELAY.FILTERS);
@@ -42,7 +45,6 @@ export function useSpecialistsList(): UseSpecialistsListReturn {
     }),
     [page, debouncedFilters]
   );
-
   const { data, isLoading, isError, isFetching } = useGetSpecialistsQuery(queryParams);
 
   // Reset list when debounced filters change
@@ -54,6 +56,8 @@ export function useSpecialistsList(): UseSpecialistsListReturn {
     setPage(1);
     setAllSpecialists([]);
     setIsInfiniteDisabled(false);
+    // Increment scrollKey to force IonInfiniteScroll to remount and reset its internal state
+    setScrollKey((prev) => prev + 1);
   }, [debouncedFilters]);
 
   // Update specialists list when data changes
@@ -86,5 +90,6 @@ export function useSpecialistsList(): UseSpecialistsListReturn {
     hasMore: !isInfiniteDisabled && !isLoading,
     total: data?.meta.total ?? 0,
     loadMore,
+    scrollKey,
   };
 }

@@ -1,4 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Set to true to enable live reload during development
 const useLiveReload = true;
@@ -11,7 +14,7 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
     // Live reload: point to your dev server (your Mac's IP)
     ...(useLiveReload && {
-      url: 'http://localhost:5173',
+      url: process.env.VITE_APP_URL || 'http://localhost:5173',
       cleartext: true,
     }),
   },

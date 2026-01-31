@@ -23,7 +23,15 @@ export function SpecialistsPage() {
   const isFiltersModalOpen = useAppSelector(selectIsFiltersModalOpen);
   const activeFiltersCount = useAppSelector(selectActiveFiltersCount);
 
-  const { specialists, isLoading, isError, hasMore, total, loadMore } = useSpecialistsList();
+  const { 
+    specialists, 
+    isLoading, 
+    isError, 
+    hasMore, 
+    total, 
+    loadMore, 
+    scrollKey 
+  } = useSpecialistsList();
 
   const handleInfiniteScroll = useCallback(
     async (event: CustomEvent<void>) => {
@@ -98,6 +106,7 @@ export function SpecialistsPage() {
 
           {/* Infinite Scroll */}
           <IonInfiniteScroll
+            key={scrollKey}
             onIonInfinite={handleInfiniteScroll}
             threshold={PAGINATION.INFINITE_SCROLL_THRESHOLD}
             disabled={!hasMore || isLoading}
