@@ -25,22 +25,42 @@ A fullstack application that displays a list of specialists with infinite scroll
 
 ```
 specialists-list-app/
-├── backend/                  # NestJS backend application
+├── backend/                  
 │   ├── src/
-│   │   ├── specialists/     # Specialists module with API endpoints
+│   │   ├── common/
+│   │   │   ├── constants/
+│   │   │   ├── dto/
+│   │   │   ├── enums/
+│   │   │   ├── filters/
+│   │   │   └── interfaces/
+│   │   ├── specialists/
+│   │   │   ├── dto/
+│   │   │   ├── entities/
+│   │   │   └── repositories/
 │   │   ├── app.module.ts
 │   │   └── main.ts
 │   └── data/
-│       └── specialists.json # Database with 100 specialists
-├── frontend/                 # Ionic React frontend application
+│       └── specialists.json 
+├── frontend/                 
 │   ├── src/
-│   │   ├── components/      # Reusable UI components
-│   │   ├── pages/           # Page components
-│   │   ├── store/           # Redux store configuration
-│   │   │   ├── api/         # RTK Query API definitions
-│   │   │   └── slices/      # Redux slices
-│   │   ├── types/           # TypeScript type definitions
-│   │   └── styles/          # Global styles
+│   │   ├── app/             
+│   │   │   └── store/       
+│   │   ├── features/        
+│   │   │   └── specialists/ 
+│   │   │       ├── api/     
+│   │   │       ├── components/ 
+│   │   │       ├── hooks/   
+│   │   │       ├── model/   
+│   │   │       ├── pages/   
+│   │   │       └── types/   
+│   │   ├── shared/          
+│   │   │   ├── api/         
+│   │   │   ├── config/      
+│   │   │   ├── hooks/       
+│   │   │   ├── lib/         
+│   │   │   └── ui/          
+│   │   ├── styles/          
+│   │   └── theme/           
 │   └── public/
 └── readme.md
 ```
@@ -79,29 +99,59 @@ The frontend will start at `http://localhost:5173`
 
 ## API Endpoints
 
+Base URL: `http://localhost:3000`
+
 ### GET /specialists
 
 Fetches paginated list of specialists with optional filters.
 
 **Query Parameters:**
-| Parameter | Type   | Description                    |
-|-----------|--------|--------------------------------|
-| page      | number | Page number (default: 1)       |
-| limit     | number | Items per page (default: 10)   |
-| ageMin    | number | Minimum age filter             |
-| ageMax    | number | Maximum age filter             |
-| gender    | string | Gender filter ('man'/'woman')  |
-| priceMin  | number | Minimum price filter           |
-| priceMax  | number | Maximum price filter           |
+| Parameter | Type   | Description                              |
+|-----------|--------|------------------------------------------|
+| page      | number | Page number (default: 1, min: 1)         |
+| limit     | number | Items per page (default: 10, max: 100)   |
+| ageMin    | number | Minimum age filter (min: 18)             |
+| ageMax    | number | Maximum age filter (max: 100)            |
+| gender    | string | Gender filter ('man' or 'woman')         |
+| priceMin  | number | Minimum price filter (min: 0)            |
+| priceMax  | number | Maximum price filter                     |
 
 **Response:**
 ```json
 {
   "items": [...],
-  "total": 100,
-  "page": 1,
-  "limit": 10,
-  "totalPages": 10
+  "meta": {
+    "total": 100,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 10,
+    "hasNextPage": true,
+    "hasPreviousPage": false
+  }
+}
+```
+
+### GET /specialists/:id
+
+Fetches a single specialist by ID.
+
+**Response:**
+```json
+{
+  "id": 1,
+  "name": "Ann B.",
+  "avatar": "https://...",
+  ...
+}
+```
+
+**Error Response (404):**
+```json
+{
+  "statusCode": 404,
+  "timestamp": "2026-01-31T12:00:00.000Z",
+  "path": "/specialists/999",
+  "message": "Specialist with ID 999 not found"
 }
 ```
 

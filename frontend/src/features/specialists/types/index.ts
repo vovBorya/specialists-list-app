@@ -19,12 +19,18 @@ export interface Specialist {
   availableSlots: string[];
 }
 
-export interface SpecialistsResponse {
-  items: Specialist[];
+export interface PaginationMeta {
   total: number;
   page: number;
   limit: number;
   totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface SpecialistsResponse {
+  items: Specialist[];
+  meta: PaginationMeta;
 }
 
 export interface SpecialistsQueryParams {

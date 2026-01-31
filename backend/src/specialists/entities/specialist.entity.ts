@@ -1,3 +1,5 @@
+import { Gender } from '../../common/enums/gender.enum';
+
 export interface Specialist {
   id: number;
   name: string;
@@ -14,7 +16,7 @@ export interface Specialist {
   yearsOfExperience: number;
   clientsCount: number;
   sessionsCount: number;
-  gender: 'man' | 'woman';
+  gender: Gender;
   age: number;
   availableSlots: string[];
 }

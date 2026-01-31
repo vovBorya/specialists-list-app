@@ -59,24 +59,24 @@ export function useSpecialistsList(): UseSpecialistsListReturn {
   // Update specialists list when data changes
   useEffect(() => {
     if (data?.items) {
-      if (data.page === 1) {
+      if (data.meta.page === 1) {
         setAllSpecialists(data.items);
       } else {
         setAllSpecialists((prev) => [...prev, ...data.items]);
       }
 
       // Check if we've loaded all items
-      if (data.page >= data.totalPages) {
+      if (!data.meta.hasNextPage) {
         setIsInfiniteDisabled(true);
       }
     }
   }, [data]);
 
   const loadMore = useCallback(() => {
-    if (data && page < data.totalPages && !isFetching) {
+    if (data?.meta.hasNextPage && !isFetching) {
       setPage((prev) => prev + 1);
     }
-  }, [data, page, isFetching]);
+  }, [data, isFetching]);
 
   return {
     specialists: allSpecialists,
@@ -84,7 +84,7 @@ export function useSpecialistsList(): UseSpecialistsListReturn {
     isLoadingMore: isFetching && page > 1,
     isError,
     hasMore: !isInfiniteDisabled && !isLoading,
-    total: data?.total ?? 0,
+    total: data?.meta.total ?? 0,
     loadMore,
   };
 }
