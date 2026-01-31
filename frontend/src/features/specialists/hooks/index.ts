@@ -1,0 +1,1 @@
+export { useSpecialistsList } from './useSpecialistsList';

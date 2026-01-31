@@ -1,15 +1,24 @@
-import { IonApp, IonRouterOutlet, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel, setupIonicReact } from '@ionic/react';
+import {
+  IonApp,
+  IonRouterOutlet,
+  IonTabs,
+  IonTabBar,
+  IonTabButton,
+  IonIcon,
+  IonLabel,
+  setupIonicReact,
+} from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Route, Redirect } from 'react-router-dom';
 import { calendarOutline, gridOutline, chatbubbleOutline, personOutline } from 'ionicons/icons';
 
-import SpecialistsPage from './pages/SpecialistsPage';
+import { SpecialistsPage } from '@/features/specialists';
 
 setupIonicReact({
   mode: 'ios',
 });
 
-const App: React.FC = () => {
+function App() {
   return (
     <IonApp>
       <IonReactRouter>
@@ -31,7 +40,7 @@ const App: React.FC = () => {
               <Redirect to="/list" />
             </Route>
           </IonRouterOutlet>
-          
+
           <IonTabBar slot="bottom">
             <IonTabButton tab="schedule" href="/schedule">
               <IonIcon icon={calendarOutline} />
@@ -54,6 +63,6 @@ const App: React.FC = () => {
       </IonReactRouter>
     </IonApp>
   );
-};
+}
 
 export default App;

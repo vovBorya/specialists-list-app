@@ -1,7 +1,8 @@
-import React from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { store } from './store';
+
+import { store } from '@/app/store';
 import App from './App';
 
 /* Core CSS required for Ionic components */
@@ -27,11 +28,17 @@ import './theme/variables.css';
 import './styles/global.css';
 
 const container = document.getElementById('root');
-const root = createRoot(container!);
+
+if (!container) {
+  throw new Error('Root element not found');
+}
+
+const root = createRoot(container);
+
 root.render(
-  <React.StrictMode>
+  <StrictMode>
     <Provider store={store}>
       <App />
     </Provider>
-  </React.StrictMode>
+  </StrictMode>
 );

@@ -1,0 +1,77 @@
+.text {
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+/* Sizes */
+.size-xs {
+  font-size: 10px;
+}
+
+.size-sm {
+  font-size: 12px;
+}
+
+.size-md {
+  font-size: 14px;
+}
+
+.size-lg {
+  font-size: 16px;
+}
+
+.size-xl {
+  font-size: 20px;
+}
+
+.size-2xl {
+  font-size: 24px;
+}
+
+.size-3xl {
+  font-size: 32px;
+}
+
+/* Weights */
+.weight-normal {
+  font-weight: 400;
+}
+
+.weight-medium {
+  font-weight: 500;
+}
+
+.weight-semibold {
+  font-weight: 600;
+}
+
+.weight-bold {
+  font-weight: 700;
+}
+
+/* Colors */
+.color-primary {
+  color: var(--color-text-primary);
+}
+
+.color-secondary {
+  color: var(--color-text-secondary);
+}
+
+.color-muted {
+  color: var(--color-text-muted);
+}
+
+.color-inverse {
+  color: var(--color-text-inverse);
+}
+
+.color-success {
+  color: var(--color-success);
+}
+
+.color-danger {
+  color: var(--color-danger);
+}
